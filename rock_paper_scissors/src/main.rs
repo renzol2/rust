@@ -1,5 +1,5 @@
-use std::io;
 use rand::Rng;
+use std::io;
 
 enum Choice {
     Rock,
