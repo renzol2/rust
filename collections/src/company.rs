@@ -23,7 +23,9 @@ struct RetrieveMessage {
 enum Action {
     Add(AddMessage),
     Retrieve(RetrieveMessage),
-    Invalid,
+    Quit,
+    Help,
+    Invalid(String),
 }
 
 /// Converts an input message to an `Action`
@@ -31,22 +33,65 @@ enum Action {
 /// # Arguments
 /// * `input` - an input given by user
 fn get_action(input: &String) -> Action {
-    Action::Invalid
+    let split_input: Vec<&str> = input.split(" ").collect();
+
+    if split_input.len() == 0 {
+        return Action::Invalid(String::from("No input detected."));
+    }
+
+    match split_input[0].trim() {
+        "add" => {
+            if split_input.len() < 3 {
+                return Action::Invalid(String::from(
+                    "'add' actions require an employee and department",
+                ));
+            }
+
+            return Action::Add(AddMessage {
+                employee: String::from(split_input[1]),
+                department: String::from(split_input[2]),
+            });
+        }
+        "retrieve" => {
+            let by_department = split_input.len() > 1;
+            let department = if by_department {
+                String::from(split_input[1])
+            } else {
+                String::from("")
+            };
+            return Action::Retrieve(RetrieveMessage {
+                by_department,
+                department,
+            });
+        }
+        "quit" => Action::Quit,
+        "help" => Action::Help,
+        _ => Action::Invalid(String::from("Invalid syntax. Please try again.")),
+    }
 }
 
-/// Adds an employee to the departments map.
-/// Handles duplicate employees gracefully.
-///
-/// # Arguments
-/// * `msg` - the message containing the employee's name and address
-/// * `departments` - the current departments and lists of employees
-fn add_employee(msg: &AddMessage, departments: &HashMap<String, Vec<String>>) {}
+fn print_help() {
+    println!("Usage:");
+    println!("- add [name] [department] --- adds employee to department");
+    println!("- retrieve                --- retrieves all employees by department");
+    println!("- retrieve [department]   --- retrieve employees of a specific department");
+    println!("- quit                    --- exit program");
+}
+
+fn print_department(department: &String, employees: &Vec<String>) {
+    println!("Employees in {}", department);
+    for employee in employees {
+        println!("- {}", employee);
+    }
+}
 
 pub fn driver() {
     let mut departments: HashMap<String, Vec<String>> = HashMap::new();
-    loop {
-        // Add directions for user
 
+    print_help();
+
+    loop {
+        println!("");
         let mut input = String::new();
         io::stdin()
             .read_line(&mut input)
@@ -55,7 +100,33 @@ pub fn driver() {
         let action = get_action(&input);
 
         // Process action
-
-        // Add break condition
+        match action {
+            Action::Add(AddMessage {
+                employee,
+                department,
+            }) => {
+                let employees = departments.entry(department).or_insert(Vec::new());
+                employees.push(employee);
+            }
+            Action::Retrieve(RetrieveMessage {
+                by_department,
+                department,
+            }) => {
+                if by_department {
+                    match departments.get(&department) {
+                        Option::Some(employees) => print_department(&department, employees),
+                        Option::None => println!("No department named \"{}\" exists.", &department),
+                    }
+                } else {
+                    for (department_key, employees) in departments.iter() {
+                        print_department(department_key, employees);
+                        println!("");
+                    }
+                }
+            }
+            Action::Quit => break,
+            Action::Help => print_help(),
+            Action::Invalid(message) => println!("{}", message),
+        };
     }
 }

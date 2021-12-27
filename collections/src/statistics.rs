@@ -83,5 +83,8 @@ fn compute_stats(v: &Vec<u32>) {
 
 pub fn driver() {
     let v = get_numbers();
+    if v.is_empty() {
+      return;
+    }
     compute_stats(&v);
 }

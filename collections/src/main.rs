@@ -11,6 +11,6 @@ mod company;
 // Keep in mind the details about UTF-8 encoding!
 
 fn main() {
-    // statistics::driver();
+    statistics::driver();
     company::driver();
 }
