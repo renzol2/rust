@@ -1,4 +1,5 @@
 mod statistics;
+mod company;
 
 // Collections Exercises
 // https://doc.rust-lang.org/book/ch08-03-hash-maps.html
@@ -9,12 +10,7 @@ mod statistics;
 // “hay” added to the end instead (“apple” becomes “apple-hay”).
 // Keep in mind the details about UTF-8 encoding!
 
-// 3. Using a hash map and vectors, create a text interface to allow
-// a user to add employee names to a department in a company. For
-// example, “Add Sally to Engineering” or “Add Amir to Sales.” Then
-// let the user retrieve a list of all people in a department or all
-// people in the company by department, sorted alphabetically.
-
 fn main() {
-    statistics::driver();
+    // statistics::driver();
+    company::driver();
 }
