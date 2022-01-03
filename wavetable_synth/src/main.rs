@@ -1,3 +1,4 @@
+use rand::Rng;
 use std::f32::consts::PI;
 
 use core::time::Duration;
@@ -71,11 +72,37 @@ impl Source for WavetableOscillator {
 
 fn main() {
     let wave_table_size = 64;
-    let mut wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut sine_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut cos_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut square_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut triangle_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut sawtooth_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
+    let mut noise_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
 
     for n in 0..wave_table_size {
-        wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).sin());
+        // Insert values for wave tables
+        let percentage = n as f32 / wave_table_size as f32;
+        sine_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).sin());
+        cos_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).cos());
+        noise_wave_table.push(rand::thread_rng().gen_range(-1.0..1.0));
+        sawtooth_wave_table.push(2.0 * percentage - 1.0);
+
+        if n < wave_table_size / 2 {
+            square_wave_table.push(-1.0);
+            triangle_wave_table.push(2.0 * (percentage * 2.0) - 1.0);
+        } else {
+            square_wave_table.push(1.0);
+            triangle_wave_table.push(1.0 - (2.0 * (percentage * 2.0) - 1.0));
+        }
     }
+
+    let mut wave_table: Vec<f32> = Vec::new();
+    // wave_table.append(&mut noise_wave_table);
+    wave_table.append(&mut square_wave_table);
+    // wave_table.append(&mut sine_wave_table);
+    // wave_table.append(&mut cos_wave_table);
+    // wave_table.append(&mut triangle_wave_table);
+    // wave_table.append(&mut sawtooth_wave_table);
 
     let mut oscillator = WavetableOscillator::new(44_100, wave_table);
     oscillator.set_frequency(440.0);
