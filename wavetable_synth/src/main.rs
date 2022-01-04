@@ -104,6 +104,8 @@ fn main() {
     // wave_table.append(&mut triangle_wave_table);
     // wave_table.append(&mut sawtooth_wave_table);
 
+    // TODO: make CLI to switch wave tables
+
     let mut oscillator = WavetableOscillator::new(44_100, wave_table);
     oscillator.set_frequency(440.0);
 
