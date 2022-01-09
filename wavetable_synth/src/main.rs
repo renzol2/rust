@@ -78,6 +78,10 @@ impl Source for WavetableOscillator {
     }
 }
 
+fn sawtooth(x: f32) -> f32 {
+    (x + PI) / PI % 2.0 - 1.0
+}
+
 fn main() {
     // Declare wave tables
     let wave_table_size = 64;
@@ -94,7 +98,8 @@ fn main() {
         sine_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).sin());
         cos_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).cos());
         noise_wave_table.push(rand::thread_rng().gen_range(-1.0..1.0));
-        sawtooth_wave_table.push(2.0 * percentage - 1.0);
+        sawtooth_wave_table.push(sawtooth(2.0 * PI * n as f32 / wave_table_size as f32));
+        // sawtooth_wave_table.push(2.0 * percentage - 1.0);
 
         if n < wave_table_size / 2 {
             square_wave_table.push(-1.0);
