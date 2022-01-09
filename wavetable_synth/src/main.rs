@@ -2,7 +2,7 @@ use rand::Rng;
 use std::f32::consts::PI;
 
 use core::time::Duration;
-use rodio::{source::Source, OutputStream};
+use rodio::{source::Source, OutputStream, Sink};
 
 struct WavetableOscillator {
     sample_rate: u32,
@@ -79,6 +79,7 @@ impl Source for WavetableOscillator {
 }
 
 fn main() {
+    // Declare wave tables
     let wave_table_size = 64;
     let mut sine_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
     let mut cos_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
@@ -87,8 +88,8 @@ fn main() {
     let mut sawtooth_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
     let mut noise_wave_table: Vec<f32> = Vec::with_capacity(wave_table_size);
 
+    // Insert values for wave tables
     for n in 0..wave_table_size {
-        // Insert values for wave tables
         let percentage = n as f32 / wave_table_size as f32;
         sine_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).sin());
         cos_wave_table.push((2.0 * PI * n as f32 / wave_table_size as f32).cos());
@@ -104,21 +105,26 @@ fn main() {
         }
     }
 
+    // Create wave table for oscillator; append as desired
     let mut wave_table: Vec<f32> = Vec::new();
     // wave_table.append(&mut noise_wave_table);
-    wave_table.append(&mut square_wave_table);
+    // wave_table.append(&mut square_wave_table);
     // wave_table.append(&mut sine_wave_table);
     // wave_table.append(&mut cos_wave_table);
     // wave_table.append(&mut triangle_wave_table);
-    // wave_table.append(&mut sawtooth_wave_table);
+    wave_table.append(&mut sawtooth_wave_table);
 
-    // TODO: make CLI to switch wave tables
-
+    // Initialize wavetable
     let mut oscillator = WavetableOscillator::new(44_100, wave_table);
     oscillator.set_frequency(440.0);
     oscillator.set_amplitude(0.1);
 
+    // Play audio over wavetable
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let _result = stream_handle.play_raw(oscillator.convert_samples());
-    std::thread::sleep(std::time::Duration::from_secs(2));
+    let sink = Sink::try_new(&stream_handle).unwrap();
+    sink.append(oscillator.fade_in(Duration::from_secs(1)));
+    sink.sleep_until_end();
+
+    // let _result = stream_handle.play_raw(oscillator.convert_samples());
+    // std::thread::sleep(std::time::Duration::from_secs(2));
 }
