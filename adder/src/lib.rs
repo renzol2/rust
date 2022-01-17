@@ -9,7 +9,7 @@ impl Rectangle {
     }
 }
 
-fn add_two(x: i32) -> i32 {
+pub fn add_two(x: i32) -> i32 {
     x + 2
 }
 
