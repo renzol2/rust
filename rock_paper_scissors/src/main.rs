@@ -13,6 +13,14 @@ enum Outcome {
     Tie,
 }
 
+fn get_choice_string(choice: &Choice) -> &str {
+    match choice {
+        Choice::Rock => "rock",
+        Choice::Paper => "paper",
+        Choice::Scissors => "scissors",
+    }
+}
+
 fn play_rps(player_choice: &Choice, opponent_choice: &Choice) -> Outcome {
     let outcome = match (player_choice, opponent_choice) {
         // Wins
@@ -48,6 +56,7 @@ fn main() {
 
     let choices = [Choice::Rock, Choice::Paper, Choice::Scissors];
     loop {
+        println!("");
         println!("Enter 'r' to play rock.");
         println!("Enter 'p' to play paper.");
         println!("Enter 's' to play scissors.");
@@ -72,6 +81,13 @@ fn main() {
             _ => continue,
         };
 
+        let player_choice_str = get_choice_string(&player_choice);
+        let opponent_choice_str = get_choice_string(opponent_choice);
+        println!(
+            "You played {}; opponent played {}",
+            player_choice_str, opponent_choice_str
+        );
+
         let outcome = play_rps(&player_choice, opponent_choice);
 
         games += 1;
@@ -79,9 +95,15 @@ fn main() {
         match outcome {
             Outcome::Win => {
                 wins += 1;
-                print_results(games, wins);
+                println!("You win!");
             }
-            _ => print_results(games, wins),
+            Outcome::Loss => {
+                println!("You lose...");
+            }
+            Outcome::Tie => {
+                println!("It's a tie!");
+            }
         }
+        print_results(games, wins);
     }
 }
