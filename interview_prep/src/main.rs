@@ -44,16 +44,14 @@ pub fn intersection(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {
   Note that you must do this in-place without making a copy of the array.
  */
 pub fn move_zeroes(nums: &mut Vec<i32>) {
-    let mut current_index = 0;
-    for i in 0..nums.len() {
-        if nums[i] != 0 {
-            nums[current_index] = nums[i];
-            current_index += 1;
+    let mut z = Vec::new();
+    nums.retain(|x| {
+        if *x != 0 { true } else {
+            z.push(0);
+            false
         }
-    }
-    for i in current_index..nums.len() {
-        nums[i] = 0;
-    }
+    });
+    nums.append(&mut z);
 }
 
 fn main() {
