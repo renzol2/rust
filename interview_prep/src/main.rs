@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
 /**
- Given an integer array `nums`, return `true` if any value appears at least
- twice in the array, and return `false` if every element is distinct.
+  Given an integer array `nums`, return `true` if any value appears at least
+  twice in the array, and return `false` if every element is distinct.
 */
 pub fn contains_duplicate(nums: Vec<i32>) -> bool {
     let mut num_set = HashSet::new();
@@ -16,8 +16,8 @@ pub fn contains_duplicate(nums: Vec<i32>) -> bool {
 }
 
 /**
- Given two integer arrays `nums1` and `nums2`, return an array of their intersection.
- Each element in the result must be unique and you may return the result in any order.
+  Given two integer arrays `nums1` and `nums2`, return an array of their intersection.
+  Each element in the result must be unique and you may return the result in any order.
 */
 pub fn intersection(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {
     let mut set1 = HashSet::new();
@@ -35,6 +35,29 @@ pub fn intersection(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {
 
     let v: Vec<i32> = set2.into_iter().collect();
     v
+}
+
+/**
+  Given an integer array nums, move all 0's to the end of it while maintaining the relative
+  order of the non-zero elements.
+
+  Note that you must do this in-place without making a copy of the array.
+ */
+pub fn move_zeroes(nums: &mut Vec<i32>) {
+    let mut ans: Vec<i32> = Vec::new();
+    for i in 0..nums.len() {
+        if nums[i] != 0 {
+            ans.push(nums[i]);
+        }
+    }
+    let nums_size: &usize = &nums.len();
+    let num_zeroes = *nums_size - ans.len();
+    for _ in 0..num_zeroes {
+        ans.push(0);
+    }
+    for i in 0..nums.len() {
+        nums[i] = ans[i];
+    }
 }
 
 fn main() {
@@ -70,5 +93,21 @@ mod tests {
         let nums2 = vec![3, 5, 6];
         let expected = vec![3];
         assert!(intersection(nums1, nums2) == expected);
+    }
+
+    #[test]
+    fn move_zeroes_moves_all_zeroes_correctly() {
+        let mut nums = vec![0, 1, 0, 0, 2, 3];
+        let expected = vec![1, 2, 3, 0, 0, 0];
+        move_zeroes(&mut nums);
+        assert!(nums == expected);
+    }
+
+    #[test]
+    fn move_zeroes_does_nothing_with_no_zeroes() {
+        let mut nums = vec![4, 3, 2, 1, 2, 3];
+        let expected = vec![4, 3, 2, 1, 2, 3];
+        move_zeroes(&mut nums);
+        assert!(nums == expected);
     }
 }
