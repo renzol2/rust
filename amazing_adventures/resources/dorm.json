@@ -1,0 +1,102 @@
+{
+  "startingRoom": "DormRoom",
+  "endingRoom": "LaundryRoom",
+  "rooms": [
+    {
+      "name": "DormRoom",
+      "description": "You are in your dorm room in Snyder Hall. Your stuff is littered everywhere.",
+      "items": ["bag", "computer", "clothes"],
+      "directions": [
+        {
+          "directionName": "North",
+          "room": "SnyderHallway"
+        }
+      ]
+    },
+    {
+      "name": "SnyderHallway",
+      "description": "You are in the Snyder Hallway. You hear people playing music and talking.",
+      "items": ["broom"],
+      "directions": [
+        {
+          "directionName": "South",
+          "room": "DormRoom"
+        },
+        {
+          "directionName": "Southeast",
+          "room": "Bathroom"
+        },
+        {
+          "directionName": "Down",
+          "room": "Staircase"
+        }
+      ]
+    },
+    {
+      "name": "Bathroom",
+      "description": "You are in the bathroom. It smells of cleaning solution, and someone forgot to flush the urinal again.",
+      "items": ["toothbrush", "hair"],
+      "directions": [
+        {
+          "directionName": "Northwest",
+          "room": "SnyderHallway"
+        }
+      ]
+    },
+    {
+      "name": "Staircase",
+      "description": "You are walking in the staircase. Every little noise you make echoes up and down the stairs.",
+      "directions": [
+        {
+          "directionName": "Up",
+          "room": "SnyderHallway"
+        },
+        {
+          "directionName": "North",
+          "room": "Lobby"
+        }
+      ]
+    },
+    {
+      "name": "Lobby",
+      "description": "You are in the main Snyder lobby. There are a few people playing video games and studying here.",
+      "items": ["TV", "paper", "keys"],
+      "directions": [
+        {
+          "directionName": "South",
+          "room": "Staircase"
+        },
+        {
+          "directionName": "Northwest",
+          "room": "Outside"
+        },
+        {
+          "directionName": "East",
+          "room": "LaundryRoom"
+        }
+      ]
+    },
+    {
+      "name": "Outside",
+      "description": "You are now outside in the six pack, but you forgot to put on shoes and your feet are freezing.",
+      "items": ["squirrel"],
+      "directions": [
+        {
+          "directionName": "Southeast",
+          "room": "Lobby"
+        }
+      ]
+    },
+    {
+      "name": "LaundryRoom",
+      "description": "You walk into the laundry room, but someone is taking out your clothes from the dryer. You proceed to beat them up.",
+      "items": ["your clothes and not theirs"],
+      "directions": [
+        {
+          "directionName": "West",
+          "room": "Lobby"
+        }
+      ]
+    }
+  ]
+}
