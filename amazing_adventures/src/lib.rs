@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 /// A `Direction` represents a direction a Player can take.
 pub struct Direction {
@@ -24,7 +24,7 @@ pub struct AdventureRoom {
     pub name: String,
     pub description: String,
     pub items: Vec<String>,
-    pub directions: Vec<Direction>,
+    pub directions_map: HashMap<String, Direction>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -37,30 +37,52 @@ pub struct MapData {
 }
 
 impl MapData {
-    pub fn get_adventure_map(&mut self) -> Result<AdventureMap, &'static str> {
+    pub fn get_adventure_map(&mut self) -> Result<AdventureMap, String> {
+        // Check if map has starting room
         match self
             .rooms
             .iter()
             .find(|room| room.name == self.starting_room)
         {
             Some(_) => {}
-            None => return Err("Map does not contain starting room in rooms"),
+            None => return Err(String::from("Map does not contain starting room in rooms")),
         };
 
+        // Check if map has ending room room
         match self.rooms.iter().find(|room| room.name == self.ending_room) {
             Some(_) => {}
-            None => return Err("Map does not contain ending room in rooms"),
+            None => return Err(String::from("Map does not contain ending room in rooms")),
         };
 
+        // Construct room map from rooms vector
         let mut room_name_map = HashMap::new();
         for room in &self.rooms {
+            let directions_map: HashMap<String, Direction> = room
+                .directions
+                .iter()
+                .map(|dir| (dir.direction_name.clone(), dir.clone()))
+                .collect();
+
             let adventure_room = AdventureRoom {
                 name: room.name.clone(),
                 description: room.description.clone(),
                 items: room.items.as_ref().unwrap_or(Vec::new().as_ref()).clone(),
-                directions: room.directions.clone(),
+                directions_map,
             };
             room_name_map.insert(room.name.clone(), adventure_room);
+        }
+
+        // Check if every direction leads to a room
+        for room in &self.rooms {
+            for direction in &room.directions {
+                if !room_name_map.contains_key(&direction.destination) {
+                    let error_msg = format!(
+                        "Room {} contains a direction {} to room {}, which does not exist.",
+                        room.name, direction.direction_name, direction.destination
+                    );
+                    return Err(error_msg);
+                }
+            }
         }
 
         let am = AdventureMap {
@@ -93,6 +115,12 @@ impl Player {
     }
 }
 
+pub enum Command {
+    Go { direction: String },
+    Take { item: String },
+    Drop { item: String },
+}
+
 /// `AdventureEngine` exposes the interface for creating and running an adventure game.
 pub struct AdventureEngine {
     pub map: AdventureMap,
@@ -101,10 +129,12 @@ pub struct AdventureEngine {
 }
 
 impl AdventureEngine {
-    pub fn new(mut map_data: MapData) -> Result<AdventureEngine, &'static str> {
+    /// Constructs a new `AdventureEngine` struct from given map data.
+    /// Returns an error if map data is not valid.
+    pub fn new(mut map_data: MapData) -> Result<AdventureEngine, String> {
         let adventure_map = match map_data.get_adventure_map() {
             Ok(map) => map,
-            Err(e) => return Err(e),
+            Err(error_msg) => return Err(error_msg),
         };
 
         Ok(AdventureEngine {
@@ -112,5 +142,32 @@ impl AdventureEngine {
             map: adventure_map,
             player: Player::new(Vec::new()),
         })
+    }
+
+    /// Updates game state based on player command. Returns true
+    /// if command was received successfully, or false otherwise.
+    pub fn process_command(&mut self, command: Command) -> bool {
+        match command {
+            Command::Go { direction } => {
+                let current_room = self
+                    .map
+                    .room_name_map
+                    .get(&self.current_room)
+                    .unwrap_or_else(|| panic!("Error: current room not found in rooms map"));
+
+                // println!("{:?}", current_room.directions_map);
+
+                let destination_room = current_room.directions_map.get(&direction);
+
+                match destination_room {
+                    Some(direction) => {
+                        self.current_room = direction.destination.clone();
+                        true
+                    }
+                    None => false,
+                }
+            }
+            _ => false,
+        }
     }
 }

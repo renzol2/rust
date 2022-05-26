@@ -1,7 +1,8 @@
-use amazing_adventures::{AdventureEngine, MapData};
+use amazing_adventures::{AdventureEngine, Command, MapData};
 use clap::Parser;
 use std::fs;
 use std::io;
+use std::process;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -12,26 +13,53 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-    let file = fs::read_to_string(args.path).expect("Error while reading file contents");
-    let map: MapData = serde_json::from_str(&file).expect("Error while deserializing JSON file");
+    let file = fs::read_to_string(args.path).unwrap_or_else(|err| {
+        eprintln!(
+            "An error occurred while locating JSON file: {}",
+            err.to_string()
+        );
+        process::exit(1);
+    });
+    let map: MapData = serde_json::from_str(&file).unwrap_or_else(|err| {
+        eprintln!(
+            "An error occurred while deserializing JSON file: {}",
+            err.to_string()
+        );
+        process::exit(1);
+    });
 
-    let engine = match AdventureEngine::new(map) {
+    let mut engine = match AdventureEngine::new(map) {
         Ok(engine) => engine,
-        Err(msg) => panic!("{}", msg),
+        Err(msg) => {
+            eprintln!("An error occurred while initializing adventure: {}", msg);
+            process::exit(1);
+        }
     };
 
     loop {
         let current_room = engine.map.room_name_map.get(&engine.current_room).unwrap();
         println!("{}", current_room.description);
-        println!("You see these items on the ground: ");
-        for item in &current_room.items {
-            println!("- {}", item);
+        println!("You can go in these directions: ");
+        for direction in &current_room.directions_map {
+            println!("- {}", direction.0);
         }
+        println!("\nWhat would you like to do?\n");
 
-        let mut command = String::new();
+        // println!("You see these items on the ground: ");
+        // for item in &current_room.items {
+        //     println!("- {}", item);
+        // }
+
+        let mut input = String::new();
 
         io::stdin()
-            .read_line(&mut command)
+            .read_line(&mut input)
             .expect("Failed to read line");
+
+        // FIXME: hardcoded to process as directions, need to make function to convert
+        engine.process_command(Command::Go {
+            direction: String::from(input.trim()),
+        });
+        println!("");
     }
 }
