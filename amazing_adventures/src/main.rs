@@ -1,7 +1,7 @@
+use amazing_adventures::{AdventureEngine, MapData};
 use clap::Parser;
 use std::fs;
 use std::io;
-use amazing_adventures::{MapData, AdventureEngine};
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -21,10 +21,17 @@ fn main() {
     };
 
     loop {
-        let mut guess = String::new();
+        let current_room = engine.map.room_name_map.get(&engine.current_room).unwrap();
+        println!("{}", current_room.description);
+        println!("You see these items on the ground: ");
+        for item in &current_room.items {
+            println!("- {}", item);
+        }
+
+        let mut command = String::new();
 
         io::stdin()
-            .read_line(&mut guess)
+            .read_line(&mut command)
             .expect("Failed to read line");
     }
 }

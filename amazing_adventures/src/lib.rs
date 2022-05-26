@@ -3,32 +3,37 @@ use std::collections::HashMap;
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Direction {
+/// A `Direction` represents a direction a Player can take.
+pub struct Direction {
     direction_name: String,
     destination: String,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Room {
-    name: String,
-    description: String,
-    items: Option<Vec<String>>,
-    directions: Vec<Direction>,
+/// A `RoomData` struct contains room information parsed from JSON.
+pub struct RoomData {
+    pub name: String,
+    pub description: String,
+    pub items: Option<Vec<String>>,
+    pub directions: Vec<Direction>,
+}
+
+/// An `AdventureRoom` represents a room that a Player can enter and exit.
+pub struct AdventureRoom {
+    pub name: String,
+    pub description: String,
+    pub items: Vec<String>,
+    pub directions: Vec<Direction>,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+/// `MapData` contains map information parsed from JSON.
 pub struct MapData {
     starting_room: String,
     ending_room: String,
-    rooms: Vec<Room>,
-}
-
-pub struct AdventureMap {
-    starting_room: String,
-    ending_room: String,
-    room_name_map: HashMap<String, Room>,
+    rooms: Vec<RoomData>,
 }
 
 impl MapData {
@@ -49,7 +54,13 @@ impl MapData {
 
         let mut room_name_map = HashMap::new();
         for room in &self.rooms {
-            room_name_map.insert(room.name.clone(), room.clone());
+            let adventure_room = AdventureRoom {
+                name: room.name.clone(),
+                description: room.description.clone(),
+                items: room.items.as_ref().unwrap_or(Vec::new().as_ref()).clone(),
+                directions: room.directions.clone(),
+            };
+            room_name_map.insert(room.name.clone(), adventure_room);
         }
 
         let am = AdventureMap {
@@ -62,7 +73,15 @@ impl MapData {
     }
 }
 
-struct Player {
+/// `AdventureMap` represents the entire map for an adventure game.
+pub struct AdventureMap {
+    pub starting_room: String,
+    pub ending_room: String,
+    pub room_name_map: HashMap<String, AdventureRoom>,
+}
+
+/// `Player` holds the player's state during an adventure game.
+pub struct Player {
     items: Vec<String>,
 }
 
@@ -74,10 +93,11 @@ impl Player {
     }
 }
 
+/// `AdventureEngine` exposes the interface for creating and running an adventure game.
 pub struct AdventureEngine {
-    map: AdventureMap,
-    player: Player,
-    current_room: String,
+    pub map: AdventureMap,
+    pub player: Player,
+    pub current_room: String,
 }
 
 impl AdventureEngine {
