@@ -4,6 +4,7 @@ A Rust implementation of a UIUC CS 126 assignment, [**Amazing Adventures**](http
 
 ## Steps
 
-- [ ] Load JSON file into data structure
+- [x] Load JSON file into data structure
+- [ ] Allow user to pick room from `resources` folder
 - [ ] Implement room traversal
 - [ ] Implement commands

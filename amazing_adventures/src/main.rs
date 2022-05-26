@@ -1,6 +1,6 @@
+use clap::Parser;
 use serde::{Deserialize, Serialize};
-use serde_json::Result;
-use std::{fs, str::FromStr};
+use std::fs;
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -26,13 +26,17 @@ struct Adventure {
     rooms: Vec<Room>,
 }
 
-fn main() {
-    parse_adventure_json("resources/dorm.json");
+#[derive(Parser, Debug)]
+struct Args {
+    /// The path to the file to read
+    #[clap(parse(from_os_str))]
+    path: std::path::PathBuf,
 }
 
-fn parse_adventure_json(filename: &str) {
-    let file = fs::read_to_string(filename).expect("Something went wrong");
-    let a: Adventure = serde_json::from_str(&file).expect("Something went wrong");
+fn main() {
+    let args = Args::parse();
+    let file = fs::read_to_string(args.path).expect("Error while reading file contents");
+    let a: Adventure = serde_json::from_str(&file).expect("Error while deserializing JSON file");
 
     println!("{} {}", a.starting_room, a.ending_room);
 }
