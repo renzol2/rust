@@ -9,7 +9,7 @@
       "directions": [
         {
           "directionName": "North",
-          "room": "SnyderHallway"
+          "destination": "SnyderHallway"
         }
       ]
     },
@@ -20,15 +20,15 @@
       "directions": [
         {
           "directionName": "South",
-          "room": "DormRoom"
+          "destination": "DormRoom"
         },
         {
           "directionName": "Southeast",
-          "room": "Bathroom"
+          "destination": "Bathroom"
         },
         {
           "directionName": "Down",
-          "room": "Staircase"
+          "destination": "Staircase"
         }
       ]
     },
@@ -39,7 +39,7 @@
       "directions": [
         {
           "directionName": "Northwest",
-          "room": "SnyderHallway"
+          "destination": "SnyderHallway"
         }
       ]
     },
@@ -49,11 +49,11 @@
       "directions": [
         {
           "directionName": "Up",
-          "room": "SnyderHallway"
+          "destination": "SnyderHallway"
         },
         {
           "directionName": "North",
-          "room": "Lobby"
+          "destination": "Lobby"
         }
       ]
     },
@@ -64,15 +64,15 @@
       "directions": [
         {
           "directionName": "South",
-          "room": "Staircase"
+          "destination": "Staircase"
         },
         {
           "directionName": "Northwest",
-          "room": "Outside"
+          "destination": "Outside"
         },
         {
           "directionName": "East",
-          "room": "LaundryRoom"
+          "destination": "LaundryRoom"
         }
       ]
     },
@@ -83,7 +83,7 @@
       "directions": [
         {
           "directionName": "Southeast",
-          "room": "Lobby"
+          "destination": "Lobby"
         }
       ]
     },
@@ -94,7 +94,7 @@
       "directions": [
         {
           "directionName": "West",
-          "room": "Lobby"
+          "destination": "Lobby"
         }
       ]
     }

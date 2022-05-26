@@ -9,7 +9,7 @@
       "directions": [
         {
           "directionName": "East",
-          "room": "SiebelEntry"
+          "destination": "SiebelEntry"
         }
       ]
     },
@@ -20,19 +20,19 @@
       "directions": [
         {
           "directionName": "West",
-          "room": "MatthewsStreet"
+          "destination": "MatthewsStreet"
         },
         {
           "directionName": "Northeast",
-          "room": "AcmOffice"
+          "destination": "AcmOffice"
         },
         {
           "directionName": "North",
-          "room": "SiebelNorthHallway"
+          "destination": "SiebelNorthHallway"
         },
         {
           "directionName": "East",
-          "room": "SiebelEastHallway"
+          "destination": "SiebelEastHallway"
         }
       ]
     },
@@ -43,7 +43,7 @@
       "directions": [
         {
           "directionName": "South",
-          "room": "SiebelEntry"
+          "destination": "SiebelEntry"
         }
       ]
     },
@@ -53,11 +53,11 @@
       "directions": [
         {
           "directionName": "South",
-          "room": "SiebelEntry"
+          "destination": "SiebelEntry"
         },
         {
           "directionName": "NorthEast",
-          "room": "Siebel1112"
+          "destination": "Siebel1112"
         }
       ]
     },
@@ -68,7 +68,7 @@
       "directions": [
         {
           "directionName": "West",
-          "room": "SiebelNorthHallway"
+          "destination": "SiebelNorthHallway"
         }
       ]
     },
@@ -79,15 +79,15 @@
       "directions": [
         {
           "directionName": "West",
-          "room": "SiebelEntry"
+          "destination": "SiebelEntry"
         },
         {
           "directionName": "South",
-          "room": "Siebel1314"
+          "destination": "Siebel1314"
         },
         {
           "directionName": "Down",
-          "room": "SiebelBasement"
+          "destination": "SiebelBasement"
         }
       ]
     },
@@ -97,7 +97,7 @@
       "directions": [
         {
           "directionName": "North",
-          "room": "SiebelEastHallway"
+          "destination": "SiebelEastHallway"
         }
       ]
     },
@@ -108,7 +108,7 @@
       "directions": [
         {
           "directionName": "Up",
-          "room": "SiebelEastHallway"
+          "destination": "SiebelEastHallway"
         }
       ]
     }
