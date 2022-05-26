@@ -5,6 +5,8 @@ A Rust implementation of a UIUC CS 126 assignment, [**Amazing Adventures**](http
 ## Steps
 
 - [x] Load JSON file into data structure
-- [ ] Allow user to pick room from `resources` folder
-- [ ] Implement room traversal
-- [ ] Implement commands
+- [x] Allow user to pick room from `resources` folder
+- [x] Implement room traversal
+- [ ] Implement winning
+- [ ] Implement quit command
+- [ ] Implement picking up and dropping item commands
