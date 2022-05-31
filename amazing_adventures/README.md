@@ -9,4 +9,5 @@ A Rust implementation of a UIUC CS 126 assignment, [**Amazing Adventures**](http
 - [x] Implement room traversal
 - [x] Implement winning
 - [ ] Implement quit command
+- [ ] Add tests
 - [ ] Implement picking up and dropping item commands

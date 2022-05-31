@@ -119,6 +119,8 @@ pub enum Command {
     Go { direction: String },
     Take { item: String },
     Drop { item: String },
+    Quit,
+    Invalid,
 }
 
 /// `AdventureEngine` exposes the interface for creating and running an adventure game.
@@ -171,6 +173,7 @@ impl AdventureEngine {
                     },
                 }
             }
+            Command::Quit => AdventureState::Quit,
             _ => AdventureState::Failure {
                 error_msg: "That command is not recognized.".to_string(),
             },
@@ -181,5 +184,6 @@ impl AdventureEngine {
 pub enum AdventureState {
     Success,
     Failure { error_msg: String },
+    Quit,
     Finish,
 }
