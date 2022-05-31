@@ -146,7 +146,7 @@ impl AdventureEngine {
 
     /// Updates game state based on player command. Returns true
     /// if command was received successfully, or false otherwise.
-    pub fn process_command(&mut self, command: Command) -> bool {
+    pub fn process_command(&mut self, command: Command) -> AdventureState {
         match command {
             Command::Go { direction } => {
                 let current_room = self
@@ -155,19 +155,31 @@ impl AdventureEngine {
                     .get(&self.current_room)
                     .unwrap_or_else(|| panic!("Error: current room not found in rooms map"));
 
-                // println!("{:?}", current_room.directions_map);
-
                 let destination_room = current_room.directions_map.get(&direction);
 
                 match destination_room {
                     Some(direction) => {
                         self.current_room = direction.destination.clone();
-                        true
+                        if direction.destination == self.map.ending_room {
+                            AdventureState::Finish
+                        } else {
+                            AdventureState::Success
+                        }
                     }
-                    None => false,
+                    None => AdventureState::Failure {
+                        error_msg: "You can't go that direction from this room.".to_string(),
+                    },
                 }
             }
-            _ => false,
+            _ => AdventureState::Failure {
+                error_msg: "That command is not recognized.".to_string(),
+            },
         }
     }
+}
+
+pub enum AdventureState {
+    Success,
+    Failure { error_msg: String },
+    Finish,
 }

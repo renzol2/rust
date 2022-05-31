@@ -1,4 +1,4 @@
-use amazing_adventures::{AdventureEngine, Command, MapData};
+use amazing_adventures::{AdventureEngine, Command, MapData, AdventureState};
 use clap::Parser;
 use std::fs;
 use std::io;
@@ -36,6 +36,7 @@ fn main() {
         }
     };
 
+    // Game loop begins
     loop {
         let current_room = engine.map.room_name_map.get(&engine.current_room).unwrap();
         println!("{}", current_room.description);
@@ -57,9 +58,26 @@ fn main() {
             .expect("Failed to read line");
 
         // FIXME: hardcoded to process as directions, need to make function to convert
-        engine.process_command(Command::Go {
+        let state = engine.process_command(Command::Go {
             direction: String::from(input.trim()),
         });
+
+        match state {
+            AdventureState::Success => (),
+            AdventureState::Failure { error_msg } => println!("{}", error_msg),
+            AdventureState::Finish => break,
+        }
         println!("");
     }
+
+    println!(
+        "{}",
+        engine
+            .map
+            .room_name_map
+            .get(&engine.current_room)
+            .unwrap()
+            .description
+    );
+    println!("You won!");
 }
