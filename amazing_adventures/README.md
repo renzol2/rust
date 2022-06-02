@@ -8,6 +8,6 @@ A Rust implementation of a UIUC CS 126 assignment, [**Amazing Adventures**](http
 - [x] Allow user to pick room from `resources` folder
 - [x] Implement room traversal
 - [x] Implement winning
-- [ ] Implement quit command
+- [x] Implement quit command
 - [ ] Add tests
 - [ ] Implement picking up and dropping item commands
