@@ -1,5 +1,4 @@
-use std::collections::HashSet;
-
+use std::collections::{HashMap, HashSet};
 
 /// Given an integer array `nums`, return `true` if any value appears at least
 /// twice in the array, and return `false` if every element is distinct.
@@ -34,7 +33,6 @@ pub fn intersection(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {
     v
 }
 
-
 ///  Given an integer array nums, move all 0's to the end of it while maintaining the relative
 ///  order of the non-zero elements.
 ///
@@ -42,7 +40,9 @@ pub fn intersection(nums1: Vec<i32>, nums2: Vec<i32>) -> Vec<i32> {
 pub fn move_zeroes(nums: &mut Vec<i32>) {
     let mut z = Vec::new();
     nums.retain(|x| {
-        if *x != 0 { true } else {
+        if *x != 0 {
+            true
+        } else {
             z.push(0);
             false
         }
@@ -50,13 +50,13 @@ pub fn move_zeroes(nums: &mut Vec<i32>) {
     nums.append(&mut z);
 }
 
-/// You are given an array prices where ` is the price of a given 
+/// You are given an array prices where ` is the price of a given
 /// stock on the `th day.
-/// 
-/// You want to maximize your profit by choosing a single day to buy one 
+///
+/// You want to maximize your profit by choosing a single day to buy one
 /// stock and choosing a different day in the future to sell that stock.
-/// 
-/// Return the maximum profit you can achieve from this transaction. 
+///
+/// Return the maximum profit you can achieve from this transaction.
 /// If you cannot achieve any profit, return 0.
 pub fn max_profit(prices: Vec<i32>) -> i32 {
     let mut profit = 0;
@@ -71,6 +71,34 @@ pub fn max_profit(prices: Vec<i32>) -> i32 {
     profit
 }
 
+/// Given two strings `s` and `t`, return `true` if `t` is an anagram
+/// of `s`, and `false` otherwise.
+///
+/// An **Anagram** is a word or phrase formed by rearranging the letters
+/// of a different word or phrase, typically using all the original
+/// letters exactly once.
+pub fn is_anagram(s: String, t: String) -> bool {
+    if s.len() != t.len() {
+        return false;
+    }
+
+    let mut freqs: HashMap<char, u32> = HashMap::new();
+    for c in s.chars() {
+        let counter = freqs.entry(c).or_insert(0);
+        *counter += 1;
+    }
+
+    for c in t.chars() {
+        if freqs.contains_key(&c) {
+            let counter = freqs.entry(c).or_insert(0);
+            if *counter == 0 { return false; } else { *counter -= 1; }
+        } else {
+            return false;
+        }
+    }
+
+    true
+}
 
 fn main() {
     contains_duplicate(vec![1, 2, 3, 4, 5]);
@@ -125,15 +153,36 @@ mod tests {
 
     #[test]
     fn max_profit_returns_max_profit() {
-        let prices = vec![7,1,5,3,6,4];
+        let prices = vec![7, 1, 5, 3, 6, 4];
         let profit = max_profit(prices);
         assert_eq!(profit, 5);
     }
 
     #[test]
     fn max_profit_returns_no_profit() {
-        let prices = vec![7,6,5,4,3,2,1];
+        let prices = vec![7, 6, 5, 4, 3, 2, 1];
         let profit = max_profit(prices);
         assert_eq!(profit, 0);
+    }
+
+    #[test]
+    fn is_anagram_finds_anagram_correctly() {
+        let s = "anagram".to_string();
+        let t = "nagaram".to_string();
+        assert_eq!(is_anagram(s, t), true);
+    }
+
+    #[test]
+    fn is_anagram_finds_non_anagram_correctly() {
+        let s = "rat".to_string();
+        let t = "car".to_string();
+        assert_eq!(is_anagram(s, t), false);
+    }
+
+    #[test]
+    fn is_anagram_finds_double_letter_non_anagram_correctly() {
+        let s = "rat".to_string();
+        let t = "rar".to_string();
+        assert_eq!(is_anagram(s, t), false);
     }
 }
