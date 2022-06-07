@@ -188,6 +188,12 @@ impl MyQueue {
  * let ret_4: bool = obj.empty();
  */
 
+/// Given two strings ransomNote and magazine, return true if ransomNote
+/// can be constructed by using the letters from magazine and false otherwise.
+pub fn can_construct(ransom_note: String, magazine: String) -> bool {
+    is_anagram(ransom_note, magazine)
+}
+
 fn main() {
     contains_duplicate(vec![1, 2, 3, 4, 5]);
 }
