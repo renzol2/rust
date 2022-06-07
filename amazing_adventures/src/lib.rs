@@ -37,7 +37,7 @@ pub struct MapData {
 }
 
 impl MapData {
-    pub fn get_adventure_map(&mut self) -> Result<AdventureMap, String> {
+    pub fn get_adventure_map(&self) -> Result<AdventureMap, String> {
         // Check if map has starting room
         match self
             .rooms
@@ -133,7 +133,7 @@ pub struct AdventureEngine {
 impl AdventureEngine {
     /// Constructs a new `AdventureEngine` struct from given map data.
     /// Returns an error if map data is not valid.
-    pub fn new(mut map_data: MapData) -> Result<AdventureEngine, String> {
+    pub fn new(map_data: MapData) -> Result<AdventureEngine, String> {
         let adventure_map = match map_data.get_adventure_map() {
             Ok(map) => map,
             Err(error_msg) => return Err(error_msg),
@@ -186,4 +186,24 @@ pub enum AdventureState {
     Failure { error_msg: String },
     Quit,
     Finish,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use super::*;
+
+    #[test]
+    fn get_adventure_map_creates_map_correctly() {
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        
+        let adventure_map = map.get_adventure_map().unwrap();
+
+        assert_eq!(adventure_map.starting_room, "DormRoom");
+        assert_eq!(adventure_map.ending_room, "LaundryRoom");
+
+        // TODO: ensure some rooms have correct names, descriptions, items, and directions
+    }
 }
