@@ -101,7 +101,7 @@ pub fn initiate_game_loop(engine: &mut AdventureEngine) -> AdventureState {
 
 /// Converts raw user input into commands.
 /// Trims whitespace and return characters.
-pub fn process_input(input: String, is_case_sensitive: bool) -> Command {
+fn process_input(input: String, is_case_sensitive: bool) -> Command {
     // TODO: add support for items
     // Separate commands from directions/items
     let input = input.trim();
@@ -114,10 +114,14 @@ pub fn process_input(input: String, is_case_sensitive: bool) -> Command {
     };
 
     // Identify command
-    if command == "go" {
-        let direction = tokens[1].to_string();
-        let direction = direction.trim().to_string();
-        return Command::Go { direction };
+    if tokens.len() == 2 {
+        let object = tokens[1].trim().to_string();
+        return match command.as_str() {
+            "go" => Command::Go { direction: object },
+            "take" => Command::Take { item: object },
+            "drop" => Command::Drop { item: object },
+            _ => Command::Invalid,
+        };
     } else if command == "quit" {
         return Command::Quit;
     } else {
@@ -128,6 +132,14 @@ pub fn process_input(input: String, is_case_sensitive: bool) -> Command {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn process_command_empty_string_is_invalid() {
+        let input = String::from("");
+        let processed_input = process_input(input, true);
+        let expected = Command::Invalid;
+        assert_eq!(processed_input, expected);
+    }
 
     #[test]
     fn process_command_go_single_word_lowercase() {
@@ -220,6 +232,14 @@ mod tests {
     }
 
     #[test]
+    fn process_command_go_without_direction_is_invalid() {
+        let input = String::from("go ");
+        let processed_input = process_input(input, true);
+        let expected = Command::Invalid;
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
     fn process_command_quit_case_sensitive_valid() {
         let input = String::from("quit");
         let processed_input = process_input(input, true);
@@ -240,6 +260,113 @@ mod tests {
         let input = String::from("quIT");
         let processed_input = process_input(input, false);
         let expected = Command::Quit;
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_without_item_is_invalid() {
+        let input = String::from("take");
+        let processed_input = process_input(input, false);
+        let expected = Command::Invalid;
+        assert_eq!(processed_input, expected);
+    }
+
+    // Take
+    #[test]
+    fn process_command_take_single_word_lowercase() {
+        let input = String::from("take apple");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "apple".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_single_word_uppercase() {
+        let input = String::from("take APPLE");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "APPLE".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_single_word_mixed_case() {
+        let input = String::from("take oRaNgE");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "oRaNgE".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_single_word_lowercase_spaced() {
+        let input = String::from("    take     tea    ");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "tea".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_single_word_uppercase_spaced() {
+        let input = String::from("    take     COFFEE    ");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "COFFEE".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_single_word_mixed_case_spaced() {
+        let input = String::from("    take           Excalibur    ");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "Excalibur".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_multi_word_lowercase() {
+        let input = String::from("take rotten flesh");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "rotten flesh".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_multi_word_uppercase() {
+        let input = String::from("take BUTTON OF DOOM");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "BUTTON OF DOOM".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_multi_word_mixed_case() {
+        let input = String::from("take Renzo's Nintendo Switch");
+        let processed_input = process_input(input, true);
+        let expected = Command::Take {
+            item: "Renzo's Nintendo Switch".to_string(),
+        };
+        assert_eq!(processed_input, expected);
+    }
+
+    #[test]
+    fn process_command_take_without_direction_is_invalid() {
+        let input = String::from("take ");
+        let processed_input = process_input(input, true);
+        let expected = Command::Invalid;
         assert_eq!(processed_input, expected);
     }
 }
