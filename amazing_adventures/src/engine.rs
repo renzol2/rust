@@ -191,7 +191,7 @@ pub enum AdventureState {
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
+    use std::{fs, vec};
 
     use super::*;
 
@@ -205,6 +205,25 @@ mod tests {
         assert_eq!(adventure_map.starting_room, "DormRoom");
         assert_eq!(adventure_map.ending_room, "LaundryRoom");
 
-        // TODO: ensure some rooms have correct names, descriptions, items, and directions
+        // Ensure some rooms have correct names, descriptions, items, and directions
+        let room_map = adventure_map.room_name_map;
+        assert_eq!(room_map.len(), 7);
+
+        let dorm_room = room_map.get(&adventure_map.starting_room).unwrap();
+        assert_eq!(dorm_room.name, adventure_map.starting_room);
+        
+        let expected_description = "You are in your dorm room in Snyder Hall. Your stuff is littered everywhere.".to_string();
+        assert_eq!(dorm_room.description, expected_description);
+
+        let dorm_room_items = &dorm_room.items;
+        let expected_items = vec!["bag", "computer", "clothes"];
+        assert_eq!(dorm_room_items, &expected_items);
+
+        let dorm_room_directions = &dorm_room.directions_map;
+        assert_eq!(dorm_room_directions.len(), 1);
+
+        let direction = dorm_room_directions.get("North").unwrap();
+        assert_eq!(direction.direction_name, "North");
+        assert_eq!(direction.destination, "SnyderHallway");
     }
 }
