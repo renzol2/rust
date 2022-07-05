@@ -85,7 +85,7 @@ pub fn initiate_game_loop(engine: &mut AdventureEngine) -> AdventureState {
 
         let command = process_input(input, false);
 
-        let state = engine.process_command(command);
+        let state = engine.process_command(&command);
 
         match state {
             AdventureState::Success => (),

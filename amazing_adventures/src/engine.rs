@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 /// A `Direction` represents a direction a Player can take.
 pub struct Direction {
@@ -88,6 +88,7 @@ impl MapData {
 }
 
 /// An `AdventureRoom` represents a room that a Player can enter and exit.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AdventureRoom {
     pub name: String,
     pub description: String,
@@ -96,6 +97,7 @@ pub struct AdventureRoom {
 }
 
 /// `AdventureMap` represents the entire map for an adventure game.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AdventureMap {
     pub starting_room: String,
     pub ending_room: String,
@@ -103,14 +105,15 @@ pub struct AdventureMap {
 }
 
 /// `Player` holds the player's state during an adventure game.
+#[derive(Clone)]
 pub struct Player {
-    items: Vec<String>,
+    inventory: Vec<String>,
 }
 
 impl Player {
     pub fn new(initial_items: Vec<String>) -> Player {
         Player {
-            items: initial_items,
+            inventory: initial_items,
         }
     }
 }
@@ -125,6 +128,7 @@ pub enum Command {
 }
 
 /// `AdventureEngine` exposes the interface for creating and running an adventure game.
+#[derive(Clone)]
 pub struct AdventureEngine {
     pub map: AdventureMap,
     pub player: Player,
@@ -142,28 +146,56 @@ impl AdventureEngine {
 
         Ok(AdventureEngine {
             current_room: adventure_map.starting_room.clone(),
-            map: adventure_map,
+            map: adventure_map.clone(),
             player: Player::new(Vec::new()),
         })
     }
 
+    fn get_current_room(&self) -> &AdventureRoom {
+        self.map
+            .room_name_map
+            .get(&self.current_room)
+            .unwrap_or_else(|| panic!("Error: current room not found in rooms map"))
+    }
+
+    fn get_current_room_mut(&mut self) -> &mut AdventureRoom {
+        self.map
+            .room_name_map
+            .get_mut(&self.current_room)
+            .unwrap_or_else(|| panic!("Error: current room not found in rooms map"))
+    }
+
+    fn item_in_current_room(&self, item: &String) -> bool {
+        self.get_current_room().items.contains(item)
+    }
+
+    /// Adds the item parameter to the player's inventory while removing it from current room
+    fn take_item_from_current_room(&mut self, item: &String) {
+        // Put item in player inventory
+        self.player.inventory.push(item.clone());
+
+        // Remove item from room
+        let room_items = &mut self.get_current_room_mut().items;
+        let index = room_items.iter_mut().position(|i| i == item).unwrap();
+        room_items.remove(index);
+    }
+
+    fn drop_item_in_current_room(&mut self, item: String) {
+        ()
+    }
+
     /// Updates game state based on player command. Returns true
     /// if command was received successfully, or false otherwise.
-    pub fn process_command(&mut self, command: Command) -> AdventureState {
+    pub fn process_command(&mut self, command: &Command) -> AdventureState {
         match command {
             Command::Go { direction } => {
-                let current_room = self
-                    .map
-                    .room_name_map
-                    .get(&self.current_room)
-                    .unwrap_or_else(|| panic!("Error: current room not found in rooms map"));
-
-                let destination_room = current_room.directions_map.get(&direction);
+                let destination_room = self.get_current_room().directions_map.get(direction);
 
                 match destination_room {
                     Some(direction) => {
-                        self.current_room = direction.destination.clone();
-                        if direction.destination == self.map.ending_room {
+                        let destination = direction.destination.clone();
+                        self.current_room = destination;
+                        if self.current_room == self.map.ending_room {
                             AdventureState::Finish
                         } else {
                             AdventureState::Success
@@ -172,6 +204,16 @@ impl AdventureEngine {
                     None => AdventureState::Failure {
                         error_msg: "You can't go that direction from this room.".to_string(),
                     },
+                }
+            }
+            Command::Take { item } => {
+                if self.item_in_current_room(item) {
+                    self.take_item_from_current_room(item);
+                    AdventureState::Success
+                } else {
+                    AdventureState::Failure {
+                        error_msg: "That item is not in the room.".to_string(),
+                    }
                 }
             }
             Command::Quit => AdventureState::Quit,
@@ -199,7 +241,6 @@ mod tests {
     fn get_adventure_map_creates_map_correctly() {
         let file = fs::read_to_string("resources/dorm.json").unwrap();
         let map: MapData = serde_json::from_str(&file).unwrap();
-
         let adventure_map = map.get_adventure_map().unwrap();
 
         assert_eq!(adventure_map.starting_room, "DormRoom");
@@ -211,8 +252,10 @@ mod tests {
 
         let dorm_room = room_map.get(&adventure_map.starting_room).unwrap();
         assert_eq!(dorm_room.name, adventure_map.starting_room);
-        
-        let expected_description = "You are in your dorm room in Snyder Hall. Your stuff is littered everywhere.".to_string();
+
+        let expected_description =
+            "You are in your dorm room in Snyder Hall. Your stuff is littered everywhere."
+                .to_string();
         assert_eq!(dorm_room.description, expected_description);
 
         let dorm_room_items = &dorm_room.items;
@@ -225,5 +268,48 @@ mod tests {
         let direction = dorm_room_directions.get("North").unwrap();
         assert_eq!(direction.direction_name, "North");
         assert_eq!(direction.destination, "SnyderHallway");
+    }
+
+    #[test]
+    fn engine_loads_correctly() {
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map1: MapData = serde_json::from_str(&file).unwrap();
+        let map2: MapData = serde_json::from_str(&file).unwrap();
+        let starting_room = map1.starting_room.clone();
+        let engine = AdventureEngine::new(map1).unwrap();
+
+        assert_eq!(engine.map, map2.get_adventure_map().unwrap());
+        assert_eq!(engine.current_room, starting_room);
+    }
+
+    #[test]
+    fn take_item_from_current_room_takes_item_correctly() {
+        // Setup engine
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        let mut engine = AdventureEngine::new(map).unwrap();
+
+        // Assert initial state
+        assert_eq!(
+            engine.get_current_room().items,
+            vec![
+                "bag".to_string(),
+                "computer".to_string(),
+                "clothes".to_string()
+            ]
+        );
+        let empty_inventory: Vec<String> = vec![];
+        assert_eq!(engine.player.inventory, empty_inventory);
+
+        // Act
+        let item = "computer".to_string();
+        engine.take_item_from_current_room(&item);
+
+        // Assert state post action
+        assert_eq!(
+            engine.get_current_room().items,
+            vec!["bag".to_string(), "clothes".to_string()]
+        );
+        assert_eq!(engine.player.inventory, vec!["computer".to_string()]);
     }
 }
