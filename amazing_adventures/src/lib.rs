@@ -68,10 +68,17 @@ pub fn initiate_game_loop(engine: &mut AdventureEngine) -> AdventureState {
         for direction in &current_room.directions_map {
             println!("- {}", direction.0);
         }
-        let items = &current_room.items;
-        if !items.is_empty() {
+        let room_items = &current_room.items;
+        if !room_items.is_empty() {
             println!("You see these items on the ground: ");
-            for item in items {
+            for item in room_items {
+                println!("- {}", item);
+            }
+        }
+        let inventory = &engine.player.inventory;
+        if !inventory.is_empty() {
+            println!("You are currently holding these items: ");
+            for item in inventory {
                 println!("- {}", item);
             }
         }
@@ -102,7 +109,6 @@ pub fn initiate_game_loop(engine: &mut AdventureEngine) -> AdventureState {
 /// Converts raw user input into commands.
 /// Trims whitespace and return characters.
 fn process_input(input: String, is_case_sensitive: bool) -> Command {
-    // TODO: add support for items
     // Separate commands from directions/items
     let input = input.trim();
     let tokens: Vec<&str> = input.splitn(2, " ").collect();

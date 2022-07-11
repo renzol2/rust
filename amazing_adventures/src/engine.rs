@@ -110,13 +110,6 @@ impl AdventureRoom {
     fn drop_item(&mut self, item: String) {
         self.items.push(item);
     }
-
-    fn item_exists(&self, item: &String) -> bool {
-        match self.items.iter().position(|i| i == item) {
-            Some(_) => true,
-            None => false,
-        }
-    }
 }
 
 /// `AdventureMap` represents the entire map for an adventure game.
@@ -130,7 +123,7 @@ pub struct AdventureMap {
 /// `Player` holds the player's state during an adventure game.
 #[derive(Clone)]
 pub struct Player {
-    inventory: Vec<String>,
+    pub inventory: Vec<String>,
 }
 
 impl Player {
@@ -241,6 +234,16 @@ impl AdventureEngine {
             Command::Take { item } => {
                 if self.item_in_current_room(item) {
                     self.take_item_from_current_room(item);
+                    AdventureState::Success
+                } else {
+                    AdventureState::Failure {
+                        error_msg: "That item is not in the room.".to_string(),
+                    }
+                }
+            }
+            Command::Drop { item } => {
+                if self.player.inventory.contains(item) {
+                    self.drop_item_in_current_room(item);
                     AdventureState::Success
                 } else {
                     AdventureState::Failure {
@@ -382,9 +385,9 @@ mod tests {
     fn adventure_room_item_exists_works_correctly() {
         let file = fs::read_to_string("resources/dorm.json").unwrap();
         let map: MapData = serde_json::from_str(&file).unwrap();
-        let mut engine = AdventureEngine::new(map).unwrap();
+        let engine = AdventureEngine::new(map).unwrap();
 
-        let current_room: &mut AdventureRoom = engine.get_current_room_mut();
+        let current_room: &AdventureRoom = engine.get_current_room();
 
         // Assert initial state
         let expected_items = vec![
@@ -397,7 +400,7 @@ mod tests {
         // Act
         expected_items
             .iter()
-            .for_each(|i| assert!(current_room.item_exists(i)));
+            .for_each(|i| assert!(engine.item_in_current_room(i)));
 
         let nonexistent_items: Vec<String> = vec!["napkin", "belt", "pillow"]
             .iter()
@@ -406,7 +409,7 @@ mod tests {
 
         nonexistent_items
             .iter()
-            .for_each(|i| assert!(!current_room.item_exists(i)));
+            .for_each(|i| assert!(!engine.item_in_current_room(i)));
 
         // Assert state post action
         assert_eq!(current_room.items, expected_items);
