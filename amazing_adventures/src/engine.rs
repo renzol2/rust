@@ -96,6 +96,26 @@ pub struct AdventureRoom {
     pub directions_map: HashMap<String, Direction>,
 }
 
+impl AdventureRoom {
+    /// Finds an item of matching name and returns it.
+    /// Returns an error if the item is not found.    
+    fn take_item(&mut self, item: &String) -> Result<String, &'static str> {
+        let index = match self.items.iter().position(|i| i == item) {
+            Some(i) => i,
+            None => return Err("Item not found"),
+        };
+        Ok(self.items.remove(index))
+    }
+
+    fn drop_item(&mut self, item: String) {
+        unimplemented!();
+    }
+
+    fn item_exists(&self, item: &String) -> bool {
+        unimplemented!();
+    }
+}
+
 /// `AdventureMap` represents the entire map for an adventure game.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AdventureMap {
@@ -171,16 +191,19 @@ impl AdventureEngine {
 
     /// Adds the item parameter to the player's inventory while removing it from current room
     fn take_item_from_current_room(&mut self, item: &String) {
-        // Put item in player inventory
-        self.player.inventory.push(item.clone());
-
         // Remove item from room
-        let room_items = &mut self.get_current_room_mut().items;
-        let index = room_items.iter_mut().position(|i| i == item).unwrap();
-        room_items.remove(index);
+        let found_item = match self.get_current_room_mut().take_item(item) {
+            Ok(item) => item,
+            Err(_) => panic!("Item not found"), 
+        };
+
+        // Put item in player inventory
+        self.player.inventory.push(found_item);
     }
 
-    fn drop_item_in_current_room(&mut self, item: String) {
+    fn drop_item_in_current_room(&mut self, item: &String) {
+        // Remove item from player inventory
+        // Remove item from room
         ()
     }
 
@@ -280,6 +303,95 @@ mod tests {
 
         assert_eq!(engine.map, map2.get_adventure_map().unwrap());
         assert_eq!(engine.current_room, starting_room);
+    }
+
+    #[test]
+    fn adventure_room_take_item_works_on_valid_item() {
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        let mut engine = AdventureEngine::new(map).unwrap();
+
+        let current_room: &mut AdventureRoom = engine.get_current_room_mut();
+
+        // Assert initial state
+        assert_eq!(
+            current_room.items,
+            vec![
+                "bag".to_string(),
+                "computer".to_string(),
+                "clothes".to_string()
+            ]
+        );
+
+        // Act
+        let item = "computer".to_string();
+        let result = current_room.take_item(&item);
+
+        // Assert state post action
+        assert_eq!(
+            current_room.items,
+            vec!["bag".to_string(), "clothes".to_string()]
+        );
+        assert_eq!(Ok(item), result);
+    }
+
+    #[test]
+    fn adventure_room_drop_item_drops_correctly() {
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        let mut engine = AdventureEngine::new(map).unwrap();
+
+        let current_room: &mut AdventureRoom = engine.get_current_room_mut();
+
+        // Assert initial state
+        assert_eq!(
+            current_room.items,
+            vec![
+                "bag".to_string(),
+                "computer".to_string(),
+                "clothes".to_string()
+            ]
+        );
+
+        // Act
+        let item = "napkin".to_string();
+        current_room.drop_item(item);
+
+        // Assert state post action
+        assert_eq!(
+            current_room.items,
+            vec![
+                "bag".to_string(),
+                "clothes".to_string(),
+                "computer".to_string(),
+                "napkin".to_string()
+            ]
+        );
+    }
+
+    #[test]
+    fn adventure_room_item_exists_works_correctly() {
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        let mut engine = AdventureEngine::new(map).unwrap();
+
+        let current_room: &mut AdventureRoom = engine.get_current_room_mut();
+
+        // Assert initial state
+        let expected_items = vec![
+            "bag".to_string(),
+            "computer".to_string(),
+            "clothes".to_string(),
+        ];
+        assert_eq!(current_room.items, expected_items);
+
+        // Act
+        expected_items
+            .iter()
+            .for_each(|i| assert!(current_room.item_exists(i)));
+
+        // Assert state post action
+        assert_eq!(current_room.items, expected_items);
     }
 
     #[test]
