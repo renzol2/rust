@@ -108,11 +108,14 @@ impl AdventureRoom {
     }
 
     fn drop_item(&mut self, item: String) {
-        unimplemented!();
+        self.items.push(item);
     }
 
     fn item_exists(&self, item: &String) -> bool {
-        unimplemented!();
+        match self.items.iter().position(|i| i == item) {
+            Some(_) => true,
+            None => false,
+        }
     }
 }
 
@@ -362,8 +365,8 @@ mod tests {
             current_room.items,
             vec![
                 "bag".to_string(),
-                "clothes".to_string(),
                 "computer".to_string(),
+                "clothes".to_string(),
                 "napkin".to_string()
             ]
         );
@@ -389,6 +392,14 @@ mod tests {
         expected_items
             .iter()
             .for_each(|i| assert!(current_room.item_exists(i)));
+        
+        let nonexistent_items: Vec<String> = vec![
+            "napkin", "belt", "pillow"
+        ].iter().map(|i| i.to_string()).collect();
+
+        nonexistent_items
+            .iter()
+            .for_each(|i| assert!(!current_room.item_exists(i)));
 
         // Assert state post action
         assert_eq!(current_room.items, expected_items);
