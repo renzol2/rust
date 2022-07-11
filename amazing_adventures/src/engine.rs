@@ -197,7 +197,7 @@ impl AdventureEngine {
         // Remove item from room
         let found_item = match self.get_current_room_mut().take_item(item) {
             Ok(item) => item,
-            Err(_) => panic!("Item not found"), 
+            Err(_) => panic!("Item not found"),
         };
 
         // Put item in player inventory
@@ -206,8 +206,14 @@ impl AdventureEngine {
 
     fn drop_item_in_current_room(&mut self, item: &String) {
         // Remove item from player inventory
-        // Remove item from room
-        ()
+        let item_index = match self.player.inventory.iter().position(|i| i == item) {
+            Some(index) => index,
+            None => panic!("Item not found in player inventory"),
+        };
+        let removed_item = self.player.inventory.remove(item_index);
+
+        // Drop item into room
+        self.get_current_room_mut().drop_item(removed_item);
     }
 
     /// Updates game state based on player command. Returns true
@@ -392,10 +398,11 @@ mod tests {
         expected_items
             .iter()
             .for_each(|i| assert!(current_room.item_exists(i)));
-        
-        let nonexistent_items: Vec<String> = vec![
-            "napkin", "belt", "pillow"
-        ].iter().map(|i| i.to_string()).collect();
+
+        let nonexistent_items: Vec<String> = vec!["napkin", "belt", "pillow"]
+            .iter()
+            .map(|i| i.to_string())
+            .collect();
 
         nonexistent_items
             .iter()
@@ -434,5 +441,32 @@ mod tests {
             vec!["bag".to_string(), "clothes".to_string()]
         );
         assert_eq!(engine.player.inventory, vec!["computer".to_string()]);
+    }
+
+    #[test]
+    fn drop_item_in_current_room_drops_item_correctly() {
+        // Setup engine
+        let file = fs::read_to_string("resources/dorm.json").unwrap();
+        let map: MapData = serde_json::from_str(&file).unwrap();
+        let mut engine = AdventureEngine::new(map).unwrap();
+        let item_to_drop = "napkin".to_string();
+        engine.player.inventory.push(item_to_drop.clone());
+
+        // Assert initial state
+        let mut room_items = vec![
+            "bag".to_string(),
+            "computer".to_string(),
+            "clothes".to_string(),
+        ];
+        assert_eq!(engine.get_current_room().items, room_items);
+        assert_eq!(engine.player.inventory, vec![item_to_drop.clone()]);
+
+        // Act
+        engine.drop_item_in_current_room(&item_to_drop);
+
+        // Assert state post action
+        room_items.push(item_to_drop);
+        assert_eq!(engine.get_current_room().items, room_items);
+        assert_eq!(engine.player.inventory.len(), 0);
     }
 }
