@@ -90,12 +90,15 @@ pub fn initiate_game_loop(engine: &mut AdventureEngine) -> AdventureState {
             .read_line(&mut input)
             .expect("Failed to read line");
 
-        let command = process_input(input, false);
+        let command = process_input(input, true);
 
         let state = engine.process_command(&command);
 
+        // Clear screen
+        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+
         match state {
-            AdventureState::Success => (),
+            AdventureState::Success => println!(""),
             AdventureState::Failure { error_msg } => println!("{}", error_msg),
             AdventureState::Finish => break AdventureState::Finish,
             AdventureState::Quit => break AdventureState::Quit,
