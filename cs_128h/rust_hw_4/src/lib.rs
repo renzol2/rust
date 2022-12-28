@@ -1,17 +1,33 @@
-/// TODO: Implement this function that passes a mutable Vector of Strings
 /// You must iterate through the vector.
 /// If the word has an even number of characters, reverse the word by using the reverse function.
 /// If the word has an odd number of characters, count the number of vowels in the word.
 /// You should return a tuple containg a Vector of the reversed words
 /// and the total number of vowels from odd lengthed words.
 pub fn vector_iter(words: &mut Vec<String>) -> (Vec<String>, i32) {
-    todo!();
+    let mut reversed_words = Vec::new();
+    let mut vowel_count = 0;
+    for word in words {
+        if word.len() % 2 == 0 {
+            reverse_word(word);
+            reversed_words.push(word.clone());
+        } else {
+           vowel_count += count_vowels(word);
+        }
+    }
+    (reversed_words, vowel_count)
 }
 
-/// TODO: Implement this function that takes a String and reverses it.
 /// This should directly modify the contents of the passed String.
 pub fn reverse_word(word: &mut String) {
-    todo!();
+    unsafe {
+        let bytes: &mut [u8] = word.as_bytes_mut();
+        let len = bytes.len();
+        for i in 0..len / 2 {
+            let temp = bytes[i];
+            bytes[i] = bytes[len - 1 - i];
+            bytes[len - 1 - i] = temp;
+        }
+    }
 }
 
 /// TODO: Implement this function that takes a String and counts the number of vowels in it.
@@ -62,7 +78,7 @@ mod test {
     fn test_reverse_word() {
         let mut s = "music".to_string();
         reverse_word(&mut s);
-        println!("{}", s);
+        assert_eq!(s, "cisum");
     }
 
     #[test]
