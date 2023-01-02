@@ -23,3 +23,10 @@ To better practice Rust, I will be implementing Pokemon battles in Amazing Adven
 - When traversing through rooms, there will be a random chance to encounter a wild Pokemon. The Pokemon battle mode will be the same as the mainline Pokemon games, where the player will fight the wild Pokemon with the Pokemon in their own party. The player can also use items to heal their Pokemon or catch the wild Pokemon.
 - Players can catch wild Pokemon and add them to their party.
 - When players reach the final room, they will encounter a trainer that they have to fight in order to beat the Adventure. If the player wins the battle, they win the adventure. If they lose, they will have to try again.
+
+### TODOs
+
+- [ ] Implement starter Pokemon & `party` command to view party
+- [ ] Implement random encounters of Pokemon
+- [ ] Implement battling wild Pokemon
+- [ ] Implement catching wild Pokemon
